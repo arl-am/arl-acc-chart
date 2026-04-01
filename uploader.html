@@ -32,6 +32,7 @@ input[type=file]{display:none;}
 <div class="card">
   <h1>Update Org Chart</h1>
   <p class="sub">Upload the latest Paylocity org export to push live to everyone.</p>
+  <a id="back-link" href="index.html" style="display:inline-block;font-size:12px;color:#888;text-decoration:none;margin-bottom:20px;">← Back to chart</a>
 
   <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
     ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
@@ -54,7 +55,12 @@ input[type=file]{display:none;}
 
 <script>
 const BIN_ID    = '69cd3987aaba882197b5b2de';
-const MASTER_KEY = '$2a$10$ibMv/CCh8Mi1XCMVC3zqouPcT8vHNXaQ9xJgviOlNqiTgYygpfiLK';
+const MASTER_KEY = '$2a$10$06iL0srlKarfs5unSADk8etC7QVKCsm7pW8g5be.ut6MW31Ev29ZC';
+
+// Set back link from URL param if present
+const _params=new URLSearchParams(window.location.search);
+const _ret=_params.get('return');
+if(_ret) document.getElementById('back-link').href=decodeURIComponent(_ret);
 
 let selectedFile = null;
 
@@ -95,9 +101,15 @@ async function doUpload(){
       body:JSON.stringify(payload)
     });
     if(!res.ok){const e=await res.text();throw new Error(e);}
-    showStatus('✓ Org chart updated successfully! All viewers will see the new data immediately.','success');
+    showStatus('✓ Org chart updated! Returning to chart...','success');
     btn.textContent='Push to Live Chart';
     btn.disabled=false;
+    // Return to chart page after 1.5 seconds
+    setTimeout(()=>{
+      const params=new URLSearchParams(window.location.search);
+      const returnUrl=params.get('return');
+      window.location.href=returnUrl||'index.html';
+    },1500);
   } catch(e){
     showStatus('Upload failed: '+e.message,'error');
     btn.textContent='Push to Live Chart';
@@ -112,3 +124,4 @@ function showStatus(msg,type){
 </script>
 </body>
 </html>
+
