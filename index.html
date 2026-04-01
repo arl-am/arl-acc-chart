@@ -13,7 +13,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .legend{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
 .li{display:flex;align-items:center;gap:4px;font-size:10px;color:#555;}
 .ls{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
-#tree-wrap{overflow-x:auto;overflow-y:visible;padding-bottom:30px;}
+.zoom-controls{display:flex;align-items:center;gap:4px;}
+.zoom-controls span{font-size:11px;color:#888;min-width:36px;text-align:center;}
+.zoom-btn{width:26px;padding:5px 0;font-size:14px;font-weight:600;}
+.btn-update{background:#0f9e72;color:#fff;border-color:#0d8862;font-weight:600;}
+.btn-update:hover{background:#0d8862;}
+#zoom-wrap{transform-origin:top left;transition:transform .15s;}
 .tnw{display:flex;flex-direction:column;align-items:center;}
 .crow{position:relative;display:flex;flex-direction:row;align-items:flex-start;}
 .ccol{display:flex;flex-direction:column;align-items:center;}
@@ -74,6 +79,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <input type="text" id="search" placeholder="Search name, seat, title..." oninput="doSearch(this.value)" disabled>
   <button class="btn" id="btn-expand" onclick="expandAll()" disabled>Expand all</button>
   <button class="btn" id="btn-collapse" onclick="collapseAll()" disabled>Collapse all</button>
+  <div class="zoom-controls">
+    <button class="btn zoom-btn" onclick="adjustZoom(-0.1)" title="Zoom out">−</button>
+    <span id="zoom-label">100%</span>
+    <button class="btn zoom-btn" onclick="adjustZoom(0.1)" title="Zoom in">+</button>
+    <button class="btn" onclick="resetZoom()" title="Reset zoom">↺</button>
+  </div>
+  <button class="btn btn-update" onclick="goToUploader()">⬆ Update Chart</button>
   <span class="last-updated" id="last-updated"></span>
 </div>
 
@@ -96,7 +108,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </label>
 </div>
 <div id="sr"></div>
-<div id="tree-wrap"></div>
+<div id="tree-wrap" style="overflow-x:auto;overflow-y:visible;padding-bottom:30px;">
+  <div id="zoom-wrap"></div>
+</div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -386,7 +400,7 @@ function fixBars(){
 
 function render(){
   PB.length=0;
-  const wrap=document.getElementById('tree-wrap');wrap.innerHTML='';
+  const wrap=document.getElementById('zoom-wrap');wrap.innerHTML='';
   const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:row;align-items:flex-start;';
   TR.roots.forEach(rnn=>{
     const col=document.createElement('div');col.className='ccol';
@@ -394,6 +408,30 @@ function render(){
   });
   wrap.appendChild(row);
   requestAnimationFrame(()=>requestAnimationFrame(fixBars));
+}
+
+// ── Zoom ──────────────────────────────────────────────────────────────────────
+let currentZoom=1.0;
+function adjustZoom(delta){
+  currentZoom=Math.min(2.0,Math.max(0.3,currentZoom+delta));
+  applyZoom();
+}
+function resetZoom(){currentZoom=1.0;applyZoom();}
+function applyZoom(){
+  const zw=document.getElementById('zoom-wrap');
+  zw.style.transform=`scale(${currentZoom})`;
+  zw.style.transformOrigin='top left';
+  // Adjust the outer container height to match scaled content
+  const tw=document.getElementById('tree-wrap');
+  tw.style.height=currentZoom<1?(zw.scrollHeight*currentZoom+40)+'px':'';
+  document.getElementById('zoom-label').textContent=Math.round(currentZoom*100)+'%';
+}
+
+// ── Uploader navigation ───────────────────────────────────────────────────────
+function goToUploader(){
+  // Store current page URL so uploader can return here
+  const returnUrl=encodeURIComponent(window.location.href);
+  window.location.href='uploader.html?return='+returnUrl;
 }
 
 function expandAll(){COL.clear();render();}
