@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ARL Network Accountability Chart</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f0f0ed;color:#1a1a18;padding:16px;}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.toolbar input{padding:6px 10px;font-size:12px;border:1px solid #ccc;border-radius:6px;width:220px;background:#fff;}
+.btn{padding:5px 12px;font-size:11px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;}
+.btn:hover{background:#e8e8e5;}
+.legend{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:#555;}
+.ls{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+#tree-wrap{overflow-x:auto;overflow-y:visible;padding-bottom:30px;}
+.tnw{display:flex;flex-direction:column;align-items:center;}
+.crow{position:relative;display:flex;flex-direction:row;align-items:flex-start;}
+.ccol{display:flex;flex-direction:column;align-items:center;}
+.vl{width:1px;height:16px;background:#bbb;flex-shrink:0;}
+.lm1{background:#0a1628;border:1px solid #060e1a;}
+.lm1 .cs{color:#e8f0fa;}.lm1 .ct,.lm1 .ck,.lm1 .rl,.lm1 .ri,.lm1 .pl,.lm1 .pn{color:#7090b8;}
+.lm1 .ch{border-color:#060e1a;}.lm1 .cr{border-color:#060e1a;}.lm1 .cp{background:rgba(0,0,0,0.25);}
+.lm1 .tb{background:#1a3a6a;}
+.l0{background:#1d4e89;border:1px solid #163a6a;}
+.l0 .cs{color:#d0e4fa;}.l0 .ct,.l0 .ck,.l0 .rl,.l0 .ri,.l0 .pl,.l0 .pn{color:#8ab4dc;}
+.l0 .ch{border-color:#163a6a;}.l0 .cr{border-color:#163a6a;}.l0 .cp{background:rgba(0,0,0,0.2);}
+.l0 .tb{background:#4a90d9;}
+.l1{background:#145c3a;border:1px solid #0e4429;}
+.l1 .cs{color:#c8f0dd;}.l1 .ct,.l1 .ck,.l1 .rl,.l1 .ri,.l1 .pl,.l1 .pn{color:#80c8a4;}
+.l1 .ch{border-color:#0e4429;}.l1 .cr{border-color:#0e4429;}.l1 .cp{background:rgba(0,0,0,0.2);}
+.l1 .tb{background:#28a86a;}
+.l2{background:#d4f0e8;border:1px solid #7ec8b0;}
+.l2 .cs{color:#083a2a;}.l2 .ct,.l2 .ck,.l2 .rl,.l2 .ri,.l2 .pl,.l2 .pn{color:#196048;}
+.l2 .ch{border-color:#7ec8b0;}.l2 .cr{border-color:#7ec8b0;}.l2 .cp{background:rgba(255,255,255,0.4);}
+.l2 .tb{background:#0f9e72;}
+.l3{background:#fff8e4;border:1px solid #ddb830;}
+.l3 .cs{color:#4a3200;}.l3 .ct,.l3 .ck,.l3 .rl,.l3 .ri,.l3 .pl,.l3 .pn{color:#6a4e00;}
+.l3 .ch{border-color:#ddb830;}.l3 .cr{border-color:#ddb830;}.l3 .cp{background:rgba(255,255,255,0.5);}
+.l3 .tb{background:#c09010;}
+.l4{background:#f4f0ff;border:1px solid #b0a0e0;}
+.l4 .cs{color:#28185a;}.l4 .ct,.l4 .ck,.l4 .rl,.l4 .ri,.l4 .pl,.l4 .pn{color:#40288a;}
+.l4 .ch{border-color:#b0a0e0;}.l4 .cr{border-color:#b0a0e0;}.l4 .cp{background:rgba(255,255,255,0.5);}
+.l4 .tb{background:#7c5cc4;}
+.card{border-radius:4px;width:186px;flex-shrink:0;overflow:hidden;margin:0 7px;transition:opacity .15s;}
+.card.hc{cursor:pointer;}.card.hc:hover{opacity:.85;}
+.ch{padding:7px 8px 5px;border-bottom-width:1px;border-bottom-style:solid;position:relative;}
+.cs{font-size:11px;font-weight:700;line-height:1.3;padding-right:18px;}
+.ct{font-size:9px;margin-top:1px;}
+.ck{font-size:9px;margin-top:3px;font-style:italic;line-height:1.3;}
+.tb{position:absolute;top:6px;right:6px;width:15px;height:15px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.cr{padding:4px 8px 5px;border-bottom-width:1px;border-bottom-style:solid;}
+.rl{font-size:8px;font-weight:700;text-decoration:underline;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px;}
+.ri{font-size:8px;line-height:1.35;padding-left:7px;position:relative;}
+.ri:before{content:"·";position:absolute;left:1px;}
+.cp{padding:4px 8px 6px;}
+.pl{font-size:8px;font-weight:700;margin-bottom:1px;}
+.pn{font-size:8px;line-height:1.55;}
+.ph{width:186px;flex-shrink:0;margin:0 7px;border:1.5px dashed #ccc;border-radius:4px;padding:8px 10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.35);}
+.ph-txt{font-size:9px;color:#aaa;font-style:italic;text-align:center;line-height:1.5;}
+.ph-lvl{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#bbb;display:block;margin-bottom:2px;}
+#sr{display:none;margin-bottom:12px;}
+.sr-row{display:flex;flex-wrap:wrap;gap:10px;}
+.empty{font-size:12px;color:#888;padding:20px;text-align:center;}
+/* Loading / error states */
+#status{font-size:12px;color:#888;padding:20px;text-align:center;}
+.status-error{color:#c0392b;}
+.last-updated{font-size:10px;color:#aaa;margin-left:auto;}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Search name, seat, title..." oninput="doSearch(this.value)" disabled>
+  <button class="btn" id="btn-expand" onclick="expandAll()" disabled>Expand all</button>
+  <button class="btn" id="btn-collapse" onclick="collapseAll()" disabled>Collapse all</button>
+  <span class="last-updated" id="last-updated"></span>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ls" style="background:#0a1628"></div>President</div>
+  <div class="li"><div class="ls" style="background:#1d4e89"></div>Company Sector — VP</div>
+  <div class="li"><div class="ls" style="background:#145c3a"></div>Department — Director</div>
+  <div class="li"><div class="ls" style="background:#d4f0e8;border:1px solid #7ec8b0"></div>Dept Specialty — Manager</div>
+  <div class="li"><div class="ls" style="background:#fff8e4;border:1px solid #ddb830"></div>Team — Supervisor</div>
+  <div class="li"><div class="ls" style="background:#f4f0ff;border:1px solid #b0a0e0"></div>Individual Contributor</div>
+  <div class="li"><div class="ls" style="background:rgba(255,255,255,0.35);border:1.5px dashed #ccc"></div>Skipped / Vacant</div>
+</div>
+
+<div id="status">Loading org chart...</div>
+<div id="sr"></div>
+<div id="tree-wrap"></div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const BIN_ID   = '69cd3987aaba882197b5b2de';
+const READ_KEY = '$2a$10$ibMv/CCh8Mi1XCMVC3zqouPcT8vHNXaQ9xJgviOlNqiTgYygpfiLK';
+
+// ── Level / seat definitions ──────────────────────────────────────────────────
+const LN=["President","Company Sector","Department","Dept Specialty","Team","Contributor"];
+function lvlClass(l){return l===-1?'lm1':'l'+l;}
+
+const TL={
+  "president":-1,
+  "executive vice president":0,"vp of sales & marketing":0,"vp of strategy":0,
+  "vp of technology":0,"vp of agent network":0,"operations manager":0,"human resources manager":0,
+  "director of brokerage operations":1,"director of financial operations":1,
+  "director of agent relations":1,"director of transport operations":1,
+  "transitional director of transport operations":1,"director of quality":1,
+  "hr and facility director":1,"claims director":1,"business development manager":1,
+  "safety & compliance manager":2,"accounting manager":2,"billing manager":2,
+  "oe administration manager":2,"ibe services manager":2,"accounts receivable manager":2,
+  "business operations quality manager":2,"spoc manager":2,"agent success manager":2,
+  "operations supervisor":3,"billing supervisor":3,"processing supervisor":3,
+  "safety and compliance supervisor":3,"field safety supervisor":3,"logs supervisor":3,
+  "accounts receivable supervisor":3,"customer specialist supervisor":3,
+  "agent success supervisor":3,"transport settlement supervisor":3,
+  "inventory control supervisor":3,"permits supervisor":3,"quality assurance manager":3,
+  "operations coordinator":4,"business development representative":4,
+  "senior business development representative":4,"national sales director":4,
+  "senior sales executive":4,"senior sales executive - agent path":4,
+  "billing specialist":4,"processing rep":4,"processing specialist":4,
+  "per diem admin rep":4,"safety admin rep":4,"data entry rep":4,
+  "accounting rep":4,"accounting associate":4,"business analyst":4,"analytics specialist":4,
+  "logs specialist":4,"field safety manager":4,"corp field safety manager":4,
+  "field safety assistant":4,"corp safety specialist":4,"corp safety rep":4,
+  "compliance specialist":4,"claims coordinator":4,"claims administrator":4,
+  "spoc coordinator":4,"agent success representative":4,"agent success administrator":4,
+  "recruiting and onboarding specialist":4,"ibe cancellation specialist":4,
+  "quality assurance rep":4,"ar rep":4,"accounts receivable specialist":4,
+  "cash application specialist":4,"customer set-up specialist":4,
+  "strategic accounts specialist":4,"carrier set up representative":4,
+  "marketing intern":4,"agent support rep":4,"account manager":4,
+  "senior account manager":4,"warehouse specialist":4,"it help desk specialist ii":4,
+};
+
+const SD=[
+  {t:"Operations Coordinator",s:"Operations",k:"Manage 150 loads per month",r:["Building loads","Track and Trace","Carrier Procurement"]},
+  {t:"Operations Supervisor",s:"Operations",k:"150 Loads Per Month Avg Per Team Member",r:["Ensure QA of Sales Support Reps","Coach and Train New Hires","Report and Resolve Communication Errors"]},
+  {t:"Director of Brokerage Operations",s:"Operations",k:"Operations Spend Per Load",r:["Ensure accuracy of KPIs","Manage high level carrier relationships","Manage technology vendor relationships"]},
+  {t:"Transitional Director of Transport Operations",s:"Operations",k:"Operations Spend Per Load",r:["Ensure accuracy of KPIs","Manage high level carrier relationships","Manage technology vendor relationships"]},
+  {t:"Business Development Representative",s:"Business Development",k:"65k Per Month Margin",r:["Quote Business","Maintain Customer Relationships","Customer Single Point of Contact"]},
+  {t:"Senior Business Development Representative",s:"Business Development",k:"65k Per Month Margin",r:["Quote Business","Maintain Customer Relationships","Customer Single Point of Contact"]},
+  {t:"National Sales Director",s:"Sales",k:"",r:[]},{t:"Senior Sales Executive",s:"Sales",k:"",r:[]},
+  {t:"Senior Sales Executive - Agent Path",s:"Sales",k:"",r:[]},
+  {t:"Business Development Manager",s:"Business Development",k:"65k Margin Per BDR",r:["Ensure QA of BDRs","Fill All Gaps and Manage OOO","Drive Revenue with Existing Business"]},
+  {t:"Billing Manager",s:"Transport Billing",k:"98% Billing Accuracy",r:["Drive the max KPI","Work with Agent Relations Team","Manage and Approve Customer specific SOPs"]},
+  {t:"Billing Specialist",s:"Logistics Billing",k:"2600 Loads Billed/mo w/ 98% Accuracy",r:["Verify Paperwork is Correct","Invoice Loads within 48 hours","Invoice Exactly in Customer System as TM3"]},
+  {t:"Billing Supervisor",s:"Logistics Billing",k:"98% Billing Accuracy",r:["Driving the Max KPI","Liaison for Truckman System","Manage and approve customer specific SOPs"]},
+  {t:"Per Diem Admin Rep",s:"Operating Expenses",k:"Payment sent Net 45 max",r:["Enter & Pay Per Diems","Chassis Invoices","Manage Disputes"]},
+  {t:"OE Administration Manager",s:"Operating Expenses",k:"125 Trucks Per FTE",r:["Issue Escalation POC","Rentals","Manage and monitor expense procedures"]},
+  {t:"Safety Admin Rep",s:"Operating Expenses",k:"200 Deductions/wk · 800 tax calc/mo",r:["Enter Elective Deductions From Drivers","Paying IFTA Taxes on behalf of Company","Manage Pre Pass & Toll Violations"]},
+  {t:"Data Entry Rep",s:"Operating Expenses",k:"Enter all invoices within 5 days",r:["Enter Per Diem & Chassis Invoices","Send notifications from SSLs"]},
+  {t:"Accounting Rep",s:"Accounting",k:"99% Accuracy on time payments",r:["Reconcile insurance Accounts","AP for safety invoices","Corporate AP"]},
+  {t:"Accounting Associate",s:"Accounting",k:"99% Accuracy on time payments",r:["Reconcile insurance Accounts","AP for safety invoices","Corporate AP"]},
+  {t:"Accounting Manager",s:"Accounting",k:"99% Accuracy · 99% on time reconciliations",r:["Prompt Processing of Company Payroll","Maintain Monday Boards and Data","Maintaining MIA Financials"]},
+  {t:"Business Analyst",s:"Reporting",k:"On Time Completion 80%",r:["Manage Tabi bots","Create and maintain Plecto boards","Ticket Management"]},
+  {t:"Analytics Specialist",s:"Analytics",k:"",r:["Ticket Management","Create and Maintain Monday Boards","Maintain executive KPI summaries"]},
+  {t:"Logs Specialist",s:"Logs",k:"95% Log Compliance",r:["Address all HOS violations, edits, and timely follow-ups","Review & Investigate all ELD & Dashcam disconnects","Assist with installation & troubleshooting of ELDs & Dashcams"]},
+  {t:"Logs Supervisor",s:"Logs",k:"95% Log Compliance for Department",r:["Assess unidentified trips, log violations, ELD Orientation","Review ELD and dashcam disconnects","Timely resolution of ELD malfunctions & orientation"]},
+  {t:"Field Safety Manager",s:"Field Safety",k:"85% OT Task Completion",r:["Manage assigned terminal safety services","Coach & review monthly SIP and Probations","Facilitate terminal safety meetings & instruction"]},
+  {t:"Corp Field Safety Manager",s:"Field Safety",k:"85% OT Task Completion",r:["Manage assigned terminal safety services","Coach & review monthly SIP and Probations","Facilitate terminal safety meetings & instruction"]},
+  {t:"Field Safety Assistant",s:"Field Safety",k:"85% OT Task Completion",r:[]},
+  {t:"Field Safety Supervisor",s:"Field Safety",k:"85% Department OT Completion",r:["Ensure all field safety services completed by due date","Maintain drug & alcohol records for all carriers","Oversee daily operations of Field Safety Personnel"]},
+  {t:"Safety & Compliance Manager",s:"Safety & Compliance",k:"",r:[]},
+  {t:"Corp Safety Specialist",s:"Corporate Safety",k:"Reported Events Coachable 80%+",r:["Review driving events & behaviors through dashcam","Track dashcam installation position & visibility","Report incidents and near-collision events"]},
+  {t:"Corp Safety Rep",s:"Corporate Safety",k:"",r:[]},
+  {t:"Safety and Compliance Supervisor",s:"Corporate Safety",k:"",r:[]},
+  {t:"Quality Assurance Manager",s:"Corporate Safety",k:"On Time Completion 90%",r:["Review Transport Operations Documents and Policies","Revise Documents and Policies as needed","Execute All Revised Documents and Policies"]},
+  {t:"Compliance Specialist",s:"Compliance",k:"90% Fleet Compliance",r:["Maintain & audit all driver & track credentials","Review roadside inspections & repair receipts","Create compliance reports for upcoming credential expirations"]},
+  {t:"Permits Supervisor",s:"Permits",k:"Elapsed time to order permits",r:["Corporate license/permit renewals","IRP plate renewal and reporting","Timely ordering and billing of permits"]},
+  {t:"Claims Director",s:"Claims",k:"Claims settlement ratio < 1%",r:["Timely handling of Claims and Accidents","Drive down claims ratios","POC for TPA"]},
+  {t:"Claims Administrator",s:"Claims",k:"",r:[]},{t:"Claims Coordinator",s:"Claims",k:"",r:[]},
+  {t:"SPOC Manager",s:"SPOC",k:"Achieve New Business Sales Goals",r:["High Level Customer Communication","Escalation POC","Flex Support"]},
+  {t:"SPOC Coordinator",s:"SPOC",k:"",r:[]},
+  {t:"Agent Success Representative",s:"Agent Success",k:"300 driver payables per week",r:["Track vendor deductions and ACH setups","Settle all drivers on time","Issue comcheks, loans, fuelcards","Management of Triumph Pay"]},
+  {t:"Agent Success Manager",s:"Agent Success",k:"99% Accuracy",r:["Onboard and train all new agents","Handle execution of all agent and IBE settlements","Issue Comcheks, Fuelcards, Loans"]},
+  {t:"Agent Success Supervisor",s:"Agent Success",k:"300 driver payables per week",r:["Train and mentor all agent success employees","Process settlements, Issue Comcheks, Fuelcards, Loans","Verify all deductions for vendors"]},
+  {t:"Transport Settlement Supervisor",s:"Agent Success",k:"300 driver payables per week",r:["Train and mentor all agent success employees","Process settlements, Issue Comcheks, Fuelcards, Loans","Verify all deductions for vendors"]},
+  {t:"Agent Success Administrator",s:"Agent Success Admin",k:"99% Ontime completion",r:["Weekly Update of AR Numbers","Enter all new ACH information & tests","New Agent Paperwork & system set ups","Loans/Deductions, overrides, sales commission"]},
+  {t:"Recruiting and Onboarding Specialist",s:"Transport Recruiting",k:"Time to Hire 8.5 days or less",r:["Pre-screen IBE applications","Schedule Pre-Qual drug screens","Onboard IBEs, IBE Drivers, and Units"]},
+  {t:"Inventory Control Supervisor",s:"Transport Recruiting",k:"",r:[]},
+  {t:"IBE Services Manager",s:"IBE Services",k:"Time to Hire & Closeout 8.75 Days or Less",r:["Oversee day-to-day operations related to driver hire, inventory & cancellations","Identify and address challenges, communicate to all terminal agents","Process & Policy Review"]},
+  {t:"IBE Cancellation Specialist",s:"IBE Services",k:"98% on time completion",r:["Process IBE cancellation paperwork","System removal","Equipment Return Follow Up"]},
+  {t:"Quality Assurance Rep",s:"Quality Assurance",k:"",r:[]},{t:"Director of Quality",s:"Quality Assurance",k:"",r:[]},
+  {t:"Processing Rep",s:"Logistics Processing",k:"",r:["Process carrier ppwk in Audit to TAI & TM","Index Exceptions"]},
+  {t:"Processing Specialist",s:"Logistics Processing",k:"",r:[]},{t:"Processing Supervisor",s:"Logistics Processing",k:"",r:[]},
+  {t:"AR Rep",s:"AR",k:"3M Outstanding Rev · 5% disallowed",r:["Keep personal disallowed under 5%","Regular Followups with Customers","Liaison with billing when Issues found"]},
+  {t:"Accounts Receivable Specialist",s:"AR",k:"5% disallowed",r:["Keep personal disallowed under 5%","Regular Followups with Customers"]},
+  {t:"Accounts Receivable Supervisor",s:"AR",k:"Under 5% Disallowed",r:["Escalation POC","Manage quality of collection calls","Coach and mentor AR reps"]},
+  {t:"Accounts Receivable Manager",s:"AR",k:"Under 5% Disallowed",r:["Escalation POC","Handle High Leverage Accounts Directly","Coach and mentor AR Supervisors"]},
+  {t:"Cash Application Specialist",s:"AR Admin",k:"Provide remittance info within 3 days",r:["Remittance","Open Credits","Small dollar open credits","Invoice Requests"]},
+  {t:"Customer Set-Up Specialist",s:"Customer Specialist",k:"15 min response · 5% disallowed",r:["New customer set ups, update, manage credit limits","Enter in TAI - manage limits"]},
+  {t:"Customer Specialist Supervisor",s:"Customer Specialist",k:"15 min response · 5% disallowed",r:["Escalation POC","Manage customer set up board"]},
+  {t:"Strategic Accounts Specialist",s:"Customer Specialist",k:"",r:["Onboard new EDI customers","Prepare & distribute EDI billing instructions","Manage EDI issues"]},
+  {t:"Carrier Set Up Representative",s:"Carrier Set Ups",k:"",r:["Update carrier insurance or hazmat dates in TM","Set up Warehouse & Transload vendors in TM","Complete Carrier Credit Ref requests"]},
+  {t:"Business Operations Quality Manager",s:"Business Ops Quality",k:"",r:[]},
+  {t:"Operations Manager",s:"MS Operations",k:"",r:[]},
+  {t:"Director of Transport Operations",s:"Retention",k:"",r:[]},
+  {t:"Marketing Intern",s:"Marketing",k:"",r:[]},{t:"Agent Support Rep",s:"Agent Support",k:"",r:[]},
+  {t:"Account Manager",s:"Prospective Agents",k:"",r:[]},{t:"Senior Account Manager",s:"Prospective Agents",k:"",r:[]},
+  {t:"HR and Facility Director",s:"People & Technology",k:"",r:[]},
+  {t:"Human Resources Manager",s:"People & Technology",k:"",r:[]},
+  {t:"Warehouse Specialist",s:"People & Technology",k:"",r:[]},
+  {t:"IT Help Desk Specialist II",s:"People & Technology",k:"",r:[]},
+  {t:"Director of Financial Operations",s:"Financial Operations",k:"",r:[]},
+  {t:"VP of Agent Network",s:"VP Agent Network",k:"",r:[]},
+  {t:"VP of Sales & Marketing",s:"Sales & Marketing",k:"",r:[]},
+  {t:"VP of Strategy",s:"VP Strategy",k:"",r:[]},
+  {t:"Executive Vice President",s:"Executive VP",k:"",r:[]},
+  {t:"VP of Technology",s:"Technology",k:"",r:[]},
+  {t:"Director of Agent Relations",s:"Agent Relations",k:"",r:[]},
+  {t:"President",s:"President",k:"",r:[]},
+];
+
+const OV={
+  "maria alejandra barraza junieles":{ti:"Operations Coordinator",se:"Operations"},
+  "luis miguel blanco altamiranda":{ti:"Billing Specialist",se:"Logistics Billing"},
+  "rick castillo":{ti:"Agent Support Rep",se:"Agent Support"},
+  "andres mendoza":{ti:"Logs Specialist",se:"Logs"},
+  "alejandra mendoza":{ti:"Operations Coordinator",se:"Operations"},
+  "deborah seibert":{ti:"Claims Administrator",se:"Claims"},
+  "alexandra herrera":{ti:"AR Rep",se:"AR"},
+  "tatiana bone":{se:"Safety & Compliance"},
+  "ivan lopez":{se:"Corporate Safety"},
+  "lisa mclean":{se:"Retention"},
+};
+
+const T2S={"logs specialist":"Logs","logs supervisor":"Logs","field safety supervisor":"Field Safety","field safety manager":"Field Safety","corp field safety manager":"Field Safety","field safety assistant":"Field Safety","corp safety specialist":"Corporate Safety","corp safety rep":"Corporate Safety","quality assurance manager":"Corporate Safety","quality assurance rep":"Quality Assurance","director of quality":"Quality Assurance","safety & compliance manager":"Safety & Compliance","safety and compliance supervisor":"Corporate Safety","operations coordinator":"Operations","operations supervisor":"Operations","director of brokerage operations":"Operations","transitional director of transport operations":"Operations","director of transport operations":"Retention","business development representative":"Business Development","senior business development representative":"Business Development","national sales director":"Sales","senior sales executive":"Sales","senior sales executive - agent path":"Sales","business development manager":"Business Development","billing specialist":"Logistics Billing","billing supervisor":"Logistics Billing","billing manager":"Transport Billing","processing rep":"Logistics Processing","processing specialist":"Logistics Processing","processing supervisor":"Logistics Processing","per diem admin rep":"Operating Expenses","oe administration manager":"Operating Expenses","safety admin rep":"Operating Expenses","data entry rep":"Operating Expenses","accounting rep":"Accounting","accounting associate":"Accounting","accounting manager":"Accounting","business analyst":"Reporting","analytics specialist":"Analytics","claims director":"Claims","claims coordinator":"Claims","claims administrator":"Claims","spoc manager":"SPOC","spoc coordinator":"SPOC","agent success representative":"Agent Success","agent success manager":"Agent Success","transport settlement supervisor":"Agent Success","agent success supervisor":"Agent Success","agent success administrator":"Agent Success Admin","recruiting and onboarding specialist":"Transport Recruiting","inventory control supervisor":"Transport Recruiting","ibe services manager":"IBE Services","ibe cancellation specialist":"IBE Services","ar rep":"AR","accounts receivable specialist":"AR","accounts receivable supervisor":"AR","accounts receivable manager":"AR","cash application specialist":"AR Admin","strategic accounts specialist":"Customer Specialist","customer specialist supervisor":"Customer Specialist","customer set-up specialist":"Customer Specialist","carrier set up representative":"Carrier Set Ups","business operations quality manager":"Business Ops Quality","operations manager":"MS Operations","permits supervisor":"Permits","hr and facility director":"People & Technology","human resources manager":"People & Technology","warehouse specialist":"People & Technology","it help desk specialist ii":"People & Technology","director of financial operations":"Financial Operations","vp of agent network":"VP Agent Network","vp of sales & marketing":"Sales & Marketing","vp of strategy":"VP Strategy","executive vice president":"Executive VP","vp of technology":"Technology","director of agent relations":"Agent Relations","account manager":"Prospective Agents","senior account manager":"Prospective Agents","compliance specialist":"Compliance","marketing intern":"Marketing","agent support rep":"Agent Support","president":"President"};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function cl(s){return s.replace(/^"|"$/g,'').trim();}
+function sp(l){const r=[];let c='',q=false;for(const x of l){if(x==='"'){q=!q;c+=x;}else if(x===','&&!q){r.push(c);c='';}else c+=x;}r.push(c);return r;}
+function nr(n){return n.toLowerCase().replace(/\s+/g,' ').trim();}
+function s2f(s){if(!s)return null;const p=s.split(',');return p.length>=2?p[1].trim()+' '+p[0].trim():s.trim();}
+function gd(t){return SD.find(d=>d.t.toLowerCase()===t.toLowerCase())||null;}
+function gl(t){return TL[t.toLowerCase()]??4;}
+
+function parseCSV(csv){
+  const lines=csv.trim().split('\n');const pp=[];
+  for(let i=1;i<lines.length;i++){
+    const pts=sp(lines[i].trim());if(pts.length<2)continue;
+    const ln=cl(pts[0]),fn=cl(pts[1]);
+    let ti=cl(pts[2]||'');const su=cl(pts[3]||'');
+    const fu=fn+' '+ln;const nn=nr(fu);
+    const ov=OV[nn];
+    if(ov&&ov.ti)ti=ov.ti;
+    let se=T2S[ti.toLowerCase()]||null;
+    if(ov&&ov.se)se=ov.se;
+    pp.push({fu,nn,ti,su,se,lv:gl(ti)});
+  }
+  return pp;
+}
+
+function buildTree(pp){
+  const bN={};pp.forEach(p=>{bN[p.nn]=p;});
+  const ch={};const hp=new Set();
+  pp.forEach(p=>{
+    const sn=s2f(p.su);const ss=sn?nr(sn):null;
+    if(!ch[p.nn])ch[p.nn]=[];
+    if(ss&&bN[ss]){if(!ch[ss])ch[ss]=[];ch[ss].push(p.nn);hp.add(p.nn);}
+    else if(ss&&!bN[ss]&&p.su){
+      if(!bN[ss]){const sf=s2f(p.su);bN[ss]={fu:sf,nn:ss,ti:'President',su:'',se:'President',lv:gl('President')};pp.push(bN[ss]);if(!ch[ss])ch[ss]=[];}
+      ch[ss].push(p.nn);hp.add(p.nn);
+    }
+  });
+  return{bN,ch,roots:pp.filter(p=>!hp.has(p.nn)).map(p=>p.nn)};
+}
+
+function poolChildren(nns){
+  const map={};
+  nns.forEach(nn=>{
+    const p=TR.bN[nn];if(!p)return;
+    const hasKids=(TR.ch[nn]||[]).length>0;
+    const key=hasKids?('__solo__'+nn):(p.su+'|||'+p.ti);
+    if(!map[key])map[key]={ti:p.ti,se:p.se,lv:p.lv,su:p.su,members:[]};
+    map[key].members.push(nn);
+  });
+  return Object.values(map).map(pool=>{
+    const df=gd(pool.ti);
+    pool.kpi=df?df.k:'';pool.resp=df?df.r:[];
+    pool.rep=pool.members.reduce((a,b)=>(TR.ch[b]||[]).length>(TR.ch[a]||[]).length?b:a);
+    pool.others=pool.members.filter(nn=>nn!==pool.rep);
+    pool.allNames=[pool.rep,...pool.others].map(nn=>TR.bN[nn]?.fu||nn);
+    pool.hasKids=(TR.ch[pool.rep]||[]).length>0;
+    return pool;
+  });
+}
+
+const COL=new Set();
+const PB=[];
+let TR={},PP=[];
+
+function mkCard(pool){
+  const{rep,ti,se,lv,kpi,resp,allNames,hasKids}=pool;
+  const d=document.createElement('div');
+  d.className=`card ${lvlClass(lv)}${hasKids?' hc':''}`;
+  const seat=se||ti||'';
+  let h=`<div class="ch"><div class="cs">${seat}</div><div class="ct">${ti}</div>${kpi?`<div class="ck">${kpi}</div>`:''}${hasKids?`<div class="tb">${COL.has(rep)?'+':'−'}</div>`:''}</div>`;
+  if(resp&&resp.length)h+=`<div class="cr"><div class="rl">Responsibilities</div>${resp.map(r=>`<div class="ri">${r}</div>`).join('')}</div>`;
+  h+=`<div class="cp"><div class="pl">${ti}</div><div class="pn">${allNames.join('<br>')}</div></div>`;
+  d.innerHTML=h;
+  if(hasKids)d.addEventListener('click',()=>{COL.has(rep)?COL.delete(rep):COL.add(rep);render();});
+  return d;
+}
+
+function nameFor(l){return LN[l+1]||('Level '+l);}
+
+function mkPH(fromLv,toLv){
+  const els=[];
+  for(let l=fromLv+1;l<toLv;l++){
+    const vl=document.createElement('div');vl.className='vl';
+    const ph=document.createElement('div');ph.className='ph';
+    ph.innerHTML=`<div class="ph-txt"><span class="ph-lvl">${nameFor(l)}</span>— Vacant —</div>`;
+    els.push(vl,ph);
+  }
+  return els;
+}
+
+function buildNode(nn,pLv){
+  const p=TR.bN[nn];if(!p)return document.createElement('div');
+  const myLv=p.lv??4;
+  const outer=document.createElement('div');outer.style.cssText='display:flex;flex-direction:column;align-items:center;';
+  if(pLv!==null&&myLv>pLv+1){mkPH(pLv,myLv).forEach(el=>outer.appendChild(el));const vl=document.createElement('div');vl.className='vl';outer.appendChild(vl);}
+  const wrap=document.createElement('div');wrap.className='tnw';
+  const selfPool={rep:nn,ti:p.ti,se:p.se,lv:myLv,su:p.su,kpi:(gd(p.ti)||{}).k||'',resp:(gd(p.ti)||{}).r||[],allNames:[p.fu],hasKids:(TR.ch[nn]||[]).length>0,members:[nn],others:[]};
+  wrap.appendChild(mkCard(selfPool));
+  const kids=TR.ch[nn]||[];
+  if(kids.length>0&&!COL.has(nn)){
+    const vd=document.createElement('div');vd.className='vl';wrap.appendChild(vd);
+    renderKids(wrap,poolChildren(kids),myLv);
+  }
+  outer.appendChild(wrap);return outer;
+}
+
+function buildPoolNode(pool,pLv){
+  const myLv=pool.lv??4;
+  const outer=document.createElement('div');outer.style.cssText='display:flex;flex-direction:column;align-items:center;';
+  if(pLv!==null&&myLv>pLv+1){mkPH(pLv,myLv).forEach(el=>outer.appendChild(el));const vl=document.createElement('div');vl.className='vl';outer.appendChild(vl);}
+  const wrap=document.createElement('div');wrap.className='tnw';
+  wrap.appendChild(mkCard(pool));
+  const kids=TR.ch[pool.rep]||[];
+  if(kids.length>0&&!COL.has(pool.rep)){
+    const vd=document.createElement('div');vd.className='vl';wrap.appendChild(vd);
+    renderKids(wrap,poolChildren(kids),myLv);
+  }
+  outer.appendChild(wrap);return outer;
+}
+
+function renderKids(wrap,pools,myLv){
+  if(pools.length===1){
+    const col=document.createElement('div');col.className='ccol';
+    const vu=document.createElement('div');vu.className='vl';col.appendChild(vu);
+    col.appendChild(buildPoolNode(pools[0],myLv));wrap.appendChild(col);
+  } else {
+    const row=document.createElement('div');row.className='crow';
+    pools.forEach(pool=>{
+      const col=document.createElement('div');col.className='ccol';
+      const vu=document.createElement('div');vu.className='vl';col.appendChild(vu);
+      col.appendChild(buildPoolNode(pool,myLv));row.appendChild(col);
+    });
+    const hb=document.createElement('div');
+    hb.style.cssText='position:absolute;height:1px;background:#bbb;top:0;pointer-events:none;';
+    row.appendChild(hb);row._hb=hb;PB.push(row);wrap.appendChild(row);
+  }
+}
+
+function fixBars(){
+  PB.forEach(row=>{
+    const cols=Array.from(row.children).filter(c=>c!==row._hb);
+    if(cols.length<2)return;
+    const rr=row.getBoundingClientRect();
+    const f=cols[0].getBoundingClientRect();
+    const l=cols[cols.length-1].getBoundingClientRect();
+    row._hb.style.left=(f.left-rr.left+f.width/2)+'px';
+    row._hb.style.width=(l.left-rr.left+l.width/2-(f.left-rr.left+f.width/2))+'px';
+  });
+}
+
+function render(){
+  PB.length=0;
+  const wrap=document.getElementById('tree-wrap');wrap.innerHTML='';
+  const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:row;align-items:flex-start;';
+  TR.roots.forEach(rnn=>{
+    const col=document.createElement('div');col.className='ccol';
+    col.appendChild(buildNode(rnn,null));row.appendChild(col);
+  });
+  wrap.appendChild(row);
+  requestAnimationFrame(()=>requestAnimationFrame(fixBars));
+}
+
+function expandAll(){COL.clear();render();}
+function collapseAll(){PP.forEach(p=>{if((TR.ch[p.nn]||[]).length>0)COL.add(p.nn);});render();}
+
+function doSearch(val){
+  const sr=document.getElementById('sr');
+  const tw=document.getElementById('tree-wrap');
+  if(!val.trim()){sr.style.display='none';tw.style.display='';return;}
+  const q=val.toLowerCase();
+  const m=PP.filter(p=>p.fu.toLowerCase().includes(q)||(p.ti||'').toLowerCase().includes(q)||(p.se||'').toLowerCase().includes(q));
+  tw.style.display='none';sr.style.display='';
+  if(!m.length){sr.innerHTML='<div class="empty">No results found.</div>';return;}
+  const row=document.createElement('div');row.className='sr-row';
+  m.forEach(p=>{
+    const pool={rep:p.nn,ti:p.ti,se:p.se,lv:p.lv,su:p.su,kpi:(gd(p.ti)||{}).k||'',resp:(gd(p.ti)||{}).r||[],allNames:[p.fu],hasKids:false,members:[p.nn],others:[]};
+    const c=mkCard(pool);c.style.cursor='default';row.appendChild(c);
+  });
+  sr.innerHTML=`<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">${m.length} result${m.length!==1?'s':''}</div>`;
+  sr.appendChild(row);
+}
+
+function initChart(csv){
+  PP=parseCSV(csv);TR=buildTree(PP);
+  COL.clear();
+  function cb(nn,d){if(d>0&&(TR.ch[nn]||[]).length>0)COL.add(nn);(TR.ch[nn]||[]).forEach(k=>cb(k,d+1));}
+  TR.roots.forEach(r=>cb(r,0));
+  render();
+  // Enable controls
+  document.getElementById('search').disabled=false;
+  document.getElementById('btn-expand').disabled=false;
+  document.getElementById('btn-collapse').disabled=false;
+}
+
+// ── JSONBin fetch ─────────────────────────────────────────────────────────────
+async function loadFromBin(){
+  const status=document.getElementById('status');
+  try {
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{
+      headers:{'X-Master-Key':READ_KEY,'X-Bin-Meta':false}
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const csv=data.record?.csv;
+    const updatedAt=data.record?.updatedAt;
+    if(!csv) throw new Error('No CSV data found in bin');
+    status.style.display='none';
+    if(updatedAt){
+      const d=new Date(updatedAt);
+      document.getElementById('last-updated').textContent=
+        'Last updated: '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    }
+    initChart(csv);
+  } catch(e){
+    status.className='status-error';
+    status.textContent='Could not load org chart data. Error: '+e.message;
+  }
+}
+
+loadFromBin();
+</script>
+</body>
+</html>
