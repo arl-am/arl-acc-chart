@@ -3,26 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <title>ARL Network Accountability Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f0f0ed;color:#1a1a18;padding:16px;}
-.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
-.toolbar input{padding:6px 10px;font-size:12px;border:1px solid #ccc;border-radius:6px;width:220px;background:#fff;}
-.btn{padding:5px 12px;font-size:11px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;}
-.btn:hover{background:#e8e8e5;}
-.legend{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
-.li{display:flex;align-items:center;gap:4px;font-size:10px;color:#555;}
-.ls{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
-.zoom-controls{display:flex;align-items:center;gap:4px;}
-.zoom-controls span{font-size:11px;color:#888;min-width:36px;text-align:center;}
-.zoom-btn{width:26px;padding:5px 0;font-size:14px;font-weight:600;}
-.btn-update{background:#0f9e72;color:#fff;border-color:#0d8862;font-weight:600;}
-.btn-update:hover{background:#0d8862;}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f0f0ed;color:#1a1a18;padding:0;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+/* ── Page header ── */
+.page-header-wrap{
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.1);
+}
+.page-header{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 16px;
+  background:#0d1929;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.header-logo{
+  height:38px;width:auto;
+  object-fit:contain;flex-shrink:0;
+}
+.header-divider{
+  width:1px;height:24px;
+  background:rgba(255,255,255,.15);
+  flex-shrink:0;
+}
+.header-title{
+  font-size:15px;font-weight:500;
+  color:rgba(255,255,255,.85);
+  letter-spacing:-0.02em;
+  white-space:nowrap;
+}
+
+/* ── Toolbar ── */
+.toolbar{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;
+  background:#fff;
+  border-bottom:1px solid #e8e8e3;
+  flex-wrap:wrap;
+}
+
+.search-wrap{position:relative;display:flex;align-items:center;}
+.search-wrap svg{position:absolute;left:9px;pointer-events:none;opacity:.4;}
+.toolbar input[type=text]{
+  padding:7px 10px 7px 30px;
+  font-size:12px;font-family:'DM Sans',sans-serif;
+  border:1px solid #e4e4de;border-radius:8px;
+  width:210px;background:#fafaf8;
+  color:#1a1a18;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.toolbar input[type=text]:focus{border-color:#0f9e72;box-shadow:0 0 0 3px rgba(15,158,114,.1);}
+.toolbar input[type=text]::placeholder{color:#bbb;}
+.toolbar input[type=text]:disabled{opacity:.4;cursor:default;}
+
+.btn{
+  padding:6px 12px;font-size:12px;font-weight:500;
+  font-family:'DM Sans',sans-serif;
+  border:1px solid #e4e4de;border-radius:8px;
+  background:#fff;cursor:pointer;color:#555;
+  transition:background .15s,border-color .15s,color .15s;
+  white-space:nowrap;
+}
+.btn:hover:not(:disabled){background:#f4f4f0;border-color:#ccc;color:#1a1a18;}
+.btn:disabled{opacity:.35;cursor:default;}
+
+.zoom-controls{display:flex;align-items:center;gap:3px;margin-left:2px;}
+.zoom-pct{
+  font-size:11px;color:#999;min-width:38px;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.zoom-btn{
+  width:28px;padding:6px 0;font-size:15px;font-weight:500;
+  border:1px solid #e4e4de;border-radius:7px;
+  background:#fff;cursor:pointer;color:#555;
+  transition:background .15s;display:flex;align-items:center;justify-content:center;
+}
+.zoom-btn:hover{background:#f4f4f0;}
+.zoom-reset{font-size:13px;width:28px;}
+
+.btn-update{
+  background:#0f9e72;color:#fff;
+  border-color:#0d8862;font-weight:600;
+  box-shadow:0 1px 4px rgba(15,158,114,.2);
+  margin-left:4px;
+}
+.btn-update:hover:not(:disabled){background:#0d8862;border-color:#0b7854;color:#fff;}
+
+.last-updated{
+  font-size:11px;color:#bbb;
+  margin-left:auto;white-space:nowrap;
+  letter-spacing:-0.01em;
+}
+
+/* ── Legend ── */
+.legend{
+  display:flex;gap:6px;
+  padding:9px 14px;
+  flex-wrap:wrap;align-items:center;
+  background:#fafaf8;
+  border-bottom:1px solid #eeeee9;
+}
+.li{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:#666;
+  padding:3px 9px 3px 6px;
+  border-radius:20px;
+  border:1px solid transparent;
+  background:rgba(255,255,255,.8);
+}
+.ls{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+
+/* ── Chart area ── */
+#status{
+  font-size:13px;color:#aaa;
+  padding:40px 20px;text-align:center;
+  font-family:'DM Sans',sans-serif;
+}
+.status-error{color:#c0392b !important;}
+#fallback-upload{display:none;text-align:center;padding:16px;}
+#fallback-upload p{font-size:12px;color:#999;margin-bottom:10px;}
+#fallback-upload label{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;font-size:12px;font-weight:500;
+  border:1px solid #e4e4de;border-radius:8px;
+  background:#fff;cursor:pointer;color:#555;
+  transition:background .15s;
+}
+#fallback-upload label:hover{background:#f4f4f0;}
+
+#sr{display:none;padding:12px 14px;}
+.sr-row{display:flex;flex-wrap:wrap;gap:10px;}
+.empty{font-size:12px;color:#aaa;padding:20px;text-align:center;}
+
+#tree-wrap{
+  overflow:auto;
+  padding:16px 14px 40px;
+  flex:1;
+  cursor:grab;
+}
+#tree-wrap.panning{cursor:grabbing;user-select:none;}
 #zoom-wrap{transform-origin:top left;transition:transform .15s;}
+
+/* ── Cards ── */
 .tnw{display:flex;flex-direction:column;align-items:center;}
 .crow{position:relative;display:flex;flex-direction:row;align-items:flex-start;}
 .ccol{display:flex;flex-direction:column;align-items:center;}
-.vl{width:1px;height:16px;background:#bbb;flex-shrink:0;}
+.vl{width:1px;height:16px;background:#ccc;flex-shrink:0;}
 .lm1{background:#0a1628;border:1px solid #060e1a;}
 .lm1 .cs{color:#e8f0fa;}.lm1 .ct,.lm1 .ck,.lm1 .rl,.lm1 .ri,.lm1 .pl,.lm1 .pn{color:#7090b8;}
 .lm1 .ch{border-color:#060e1a;}.lm1 .cr{border-color:#060e1a;}.lm1 .cp{background:rgba(0,0,0,0.25);}
@@ -47,13 +176,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .l4 .cs{color:#28185a;}.l4 .ct,.l4 .ck,.l4 .rl,.l4 .ri,.l4 .pl,.l4 .pn{color:#40288a;}
 .l4 .ch{border-color:#b0a0e0;}.l4 .cr{border-color:#b0a0e0;}.l4 .cp{background:rgba(255,255,255,0.5);}
 .l4 .tb{background:#7c5cc4;}
-.card{border-radius:4px;width:186px;flex-shrink:0;overflow:hidden;margin:0 7px;transition:opacity .15s;}
-.card.hc{cursor:pointer;}.card.hc:hover{opacity:.85;}
+.card{border-radius:6px;width:186px;flex-shrink:0;overflow:hidden;margin:0 7px;transition:opacity .15s,box-shadow .18s,transform .18s;}
+.card.hc{cursor:pointer;}
+.card.hc:hover{opacity:.9;box-shadow:0 4px 14px rgba(0,0,0,.18);transform:translateY(-2px);}
+.card.hc:active{transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,.1);}
 .ch{padding:7px 8px 5px;border-bottom-width:1px;border-bottom-style:solid;position:relative;}
 .cs{font-size:11px;font-weight:700;line-height:1.3;padding-right:18px;}
 .ct{font-size:9px;margin-top:1px;}
 .ck{font-size:9px;margin-top:3px;font-style:italic;line-height:1.3;}
-.tb{position:absolute;top:6px;right:6px;width:15px;height:15px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tb{position:absolute;top:6px;right:6px;width:15px;height:15px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+.hc:hover .tb{transform:scale(1.18);}
+.hc:active .tb{transform:scale(.88);}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(-10px) scale(0.95);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes connIn{
+  from{opacity:0;transform:scaleY(0);}
+  to{opacity:1;transform:scaleY(1);}
+}
+#zoom-wrap.animate-in .card{animation:cardIn .22s cubic-bezier(.34,1.56,.64,1) both;}
+#zoom-wrap.animate-in .vl{transform-origin:top center;animation:connIn .16s ease both;animation-delay:.05s;}
 .cr{padding:4px 8px 5px;border-bottom-width:1px;border-bottom-style:solid;}
 .rl{font-size:8px;font-weight:700;text-decoration:underline;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px;}
 .ri{font-size:8px;line-height:1.35;padding-left:7px;position:relative;}
@@ -64,30 +207,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ph{width:186px;flex-shrink:0;margin:0 7px;border:1.5px dashed #ccc;border-radius:4px;padding:8px 10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.35);}
 .ph-txt{font-size:9px;color:#aaa;font-style:italic;text-align:center;line-height:1.5;}
 .ph-lvl{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#bbb;display:block;margin-bottom:2px;}
-#sr{display:none;margin-bottom:12px;}
-.sr-row{display:flex;flex-wrap:wrap;gap:10px;}
-.empty{font-size:12px;color:#888;padding:20px;text-align:center;}
-/* Loading / error states */
-#status{font-size:12px;color:#888;padding:20px;text-align:center;}
-.status-error{color:#c0392b;}
-.last-updated{font-size:10px;color:#aaa;margin-left:auto;}
 </style>
 </head>
 <body>
 
-<div class="toolbar">
-  <input type="text" id="search" placeholder="Search name, seat, title..." oninput="doSearch(this.value)" disabled>
+<div class="page-header-wrap">
+  <header class="page-header">
+    <img src="src/assets/arl-header-logo.png" alt="ARL Network" class="header-logo">
+    <div class="header-divider"></div>
+    <span class="header-title">ARL Organization Chart</span>
+  </header>
+
+  <div class="toolbar">
+
+  <div class="search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search" placeholder="Search name, seat, title..." oninput="doSearch(this.value)" disabled>
+  </div>
+
   <button class="btn" id="btn-expand" onclick="expandAll()" disabled>Expand all</button>
   <button class="btn" id="btn-collapse" onclick="collapseAll()" disabled>Collapse all</button>
+
   <div class="zoom-controls">
     <button class="btn zoom-btn" onclick="adjustZoom(-0.1)" title="Zoom out">−</button>
-    <span id="zoom-label">100%</span>
+    <span class="zoom-pct" id="zoom-label">100%</span>
     <button class="btn zoom-btn" onclick="adjustZoom(0.1)" title="Zoom in">+</button>
-    <button class="btn" onclick="resetZoom()" title="Reset zoom">↺</button>
+    <button class="btn zoom-btn zoom-reset" onclick="resetZoom()" title="Reset zoom">↺</button>
   </div>
-  <button class="btn btn-update" onclick="goToUploader()">⬆ Update Chart</button>
+
+  <button class="btn btn-update" onclick="goToUploader()">↑ Update</button>
   <span class="last-updated" id="last-updated"></span>
-</div>
+  </div><!-- /toolbar -->
+</div><!-- /page-header-wrap -->
 
 <div class="legend">
   <div class="li"><div class="ls" style="background:#0a1628"></div>President</div>
@@ -96,26 +247,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div class="li"><div class="ls" style="background:#d4f0e8;border:1px solid #7ec8b0"></div>Dept Specialty — Manager</div>
   <div class="li"><div class="ls" style="background:#fff8e4;border:1px solid #ddb830"></div>Team — Supervisor</div>
   <div class="li"><div class="ls" style="background:#f4f0ff;border:1px solid #b0a0e0"></div>Individual Contributor</div>
-  <div class="li"><div class="ls" style="background:rgba(255,255,255,0.35);border:1.5px dashed #ccc"></div>Skipped / Vacant</div>
+  <div class="li"><div class="ls" style="background:rgba(255,255,255,.35);border:1.5px dashed #ccc"></div>Vacant</div>
 </div>
 
 <div id="status">Loading org chart...</div>
-<div id="fallback-upload" style="display:none;text-align:center;padding:16px;">
-  <p style="font-size:12px;color:#888;margin-bottom:10px;">Or load directly from a CSV file:</p>
-  <label style="display:inline-block;padding:7px 16px;font-size:12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;">
+<div id="fallback-upload">
+  <p>Or load directly from a CSV file:</p>
+  <label>
     📂 Choose CSV file
     <input type="file" accept=".csv" style="display:none" onchange="loadFallbackFile(this)">
   </label>
 </div>
 <div id="sr"></div>
-<div id="tree-wrap" style="overflow-x:auto;overflow-y:visible;padding-bottom:30px;">
+<div id="tree-wrap">
   <div id="zoom-wrap"></div>
 </div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
-const BIN_ID   = '69cd3987aaba882197b5b2de';
-const READ_KEY = '$2a$10$qbrNQ50fY5Q07uYYpmM2cOzCHDDOy3.ZOBXSWmvXAUEqaKfy7BX5O';
+// ── Data source ───────────────────────────────────────────────────────────────
+const BLOB_URL='https://arlorgchartstorage.blob.core.windows.net/chart-data/chart.json';
 
 // ── Level / seat definitions ──────────────────────────────────────────────────
 const LN=["President","Company Sector","Department","Dept Specialty","Team","Contributor"];
@@ -311,6 +461,7 @@ function poolChildren(nns){
 const COL=new Set();
 const PB=[];
 let TR={},PP=[];
+let _animNext=false,_toggling=false;
 
 function mkCard(pool){
   const{rep,ti,se,lv,kpi,resp,allNames,hasKids}=pool;
@@ -321,7 +472,31 @@ function mkCard(pool){
   if(resp&&resp.length)h+=`<div class="cr"><div class="rl">Responsibilities</div>${resp.map(r=>`<div class="ri">${r}</div>`).join('')}</div>`;
   h+=`<div class="cp"><div class="pl">${ti}</div><div class="pn">${allNames.join('<br>')}</div></div>`;
   d.innerHTML=h;
-  if(hasKids)d.addEventListener('click',()=>{COL.has(rep)?COL.delete(rep):COL.add(rep);render();});
+  if(hasKids) d.addEventListener('click',()=>{
+    if(_toggling) return;
+    const isCollapsing=!COL.has(rep);
+    if(isCollapsing){
+      // Animate children out, then collapse
+      _toggling=true;
+      const siblings=Array.from(d.parentElement.children).filter(c=>c!==d);
+      siblings.forEach(el=>{
+        el.style.transition='opacity .14s ease,transform .14s ease';
+        el.style.opacity='0';
+        el.style.transform='translateY(-6px) scale(0.97)';
+      });
+      setTimeout(()=>{
+        COL.add(rep);
+        _animNext=false;
+        render();
+        _toggling=false;
+      },150);
+    } else {
+      // Expand — new children will animate in
+      COL.delete(rep);
+      _animNext=true;
+      render();
+    }
+  });
   return d;
 }
 
@@ -381,7 +556,7 @@ function renderKids(wrap,pools,myLv){
       col.appendChild(buildPoolNode(pool,myLv));row.appendChild(col);
     });
     const hb=document.createElement('div');
-    hb.style.cssText='position:absolute;height:1px;background:#bbb;top:0;pointer-events:none;';
+    hb.style.cssText='position:absolute;height:1px;background:#ccc;top:0;pointer-events:none;';
     row.appendChild(hb);row._hb=hb;PB.push(row);wrap.appendChild(row);
   }
 }
@@ -401,6 +576,11 @@ function fixBars(){
 function render(){
   PB.length=0;
   const wrap=document.getElementById('zoom-wrap');wrap.innerHTML='';
+  if(_animNext){
+    wrap.classList.add('animate-in');
+    _animNext=false;
+    setTimeout(()=>wrap.classList.remove('animate-in'),400);
+  }
   const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:row;align-items:flex-start;';
   TR.roots.forEach(rnn=>{
     const col=document.createElement('div');col.className='ccol';
@@ -419,21 +599,21 @@ function adjustZoom(delta){
 function resetZoom(){currentZoom=1.0;applyZoom();}
 function applyZoom(){
   const zw=document.getElementById('zoom-wrap');
+  const tw=document.getElementById('tree-wrap');
   zw.style.transform=`scale(${currentZoom})`;
   zw.style.transformOrigin='top left';
-  // Adjust the outer container height to match scaled content
-  const tw=document.getElementById('tree-wrap');
-  tw.style.height=currentZoom<1?(zw.scrollHeight*currentZoom+40)+'px':'';
+  // scrollHeight/Width are unaffected by CSS transform — always the natural dimensions
+  // We must set explicit dimensions so the scroll container knows how big the scaled content is
+  zw.style.width=(zw.scrollWidth*currentZoom)+'px';
+  zw.style.height=(zw.scrollHeight*currentZoom)+'px';
   document.getElementById('zoom-label').textContent=Math.round(currentZoom*100)+'%';
 }
 
-// ── Uploader navigation ───────────────────────────────────────────────────────
+// ── Navigation & controls ─────────────────────────────────────────────────────
 function goToUploader(){
-  // Store current page URL so uploader can return here
   const returnUrl=encodeURIComponent(window.location.href);
   window.location.href='uploader.html?return='+returnUrl;
 }
-
 function expandAll(){COL.clear();render();}
 function collapseAll(){PP.forEach(p=>{if((TR.ch[p.nn]||[]).length>0)COL.add(p.nn);});render();}
 
@@ -450,7 +630,7 @@ function doSearch(val){
     const pool={rep:p.nn,ti:p.ti,se:p.se,lv:p.lv,su:p.su,kpi:(gd(p.ti)||{}).k||'',resp:(gd(p.ti)||{}).r||[],allNames:[p.fu],hasKids:false,members:[p.nn],others:[]};
     const c=mkCard(pool);c.style.cursor='default';row.appendChild(c);
   });
-  sr.innerHTML=`<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">${m.length} result${m.length!==1?'s':''}</div>`;
+  sr.innerHTML=`<div style="font-size:11px;color:#aaa;margin-bottom:10px;font-weight:500;">${m.length} result${m.length!==1?'s':''}</div>`;
   sr.appendChild(row);
 }
 
@@ -460,44 +640,68 @@ function initChart(csv){
   function cb(nn,d){if(d>0&&(TR.ch[nn]||[]).length>0)COL.add(nn);(TR.ch[nn]||[]).forEach(k=>cb(k,d+1));}
   TR.roots.forEach(r=>cb(r,0));
   render();
-  // Enable controls
   document.getElementById('search').disabled=false;
   document.getElementById('btn-expand').disabled=false;
   document.getElementById('btn-collapse').disabled=false;
 }
 
-// ── JSONBin fetch ─────────────────────────────────────────────────────────────
+// ── Drag to pan ───────────────────────────────────────────────────────────────
+(function(){
+  const tw=document.getElementById('tree-wrap');
+  let panning=false,moved=false,startX=0,startY=0,startSL=0,startST=0;
+
+  tw.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    panning=true;moved=false;
+    startX=e.clientX;startY=e.clientY;
+    startSL=tw.scrollLeft;startST=tw.scrollTop;
+  });
+
+  document.addEventListener('mousemove',e=>{
+    if(!panning)return;
+    const dx=e.clientX-startX;
+    const dy=e.clientY-startY;
+    if(!moved&&Math.abs(dx)<4&&Math.abs(dy)<4)return;
+    moved=true;
+    tw.classList.add('panning');
+    tw.scrollLeft=startSL-dx;
+    tw.scrollTop=startST-dy;
+  });
+
+  document.addEventListener('mouseup',()=>{
+    if(!panning)return;
+    panning=false;
+    tw.classList.remove('panning');
+  });
+
+  // Block card collapse/expand click if the mouse actually moved (was a drag, not a click)
+  tw.addEventListener('click',e=>{
+    if(moved){e.stopImmediatePropagation();moved=false;}
+  },true);
+})();
+
+// ── Azure Blob fetch ──────────────────────────────────────────────────────────
 async function loadFromBin(){
   const status=document.getElementById('status');
-  try {
-    // Fetch without X-Bin-Meta so we get the full wrapper including metadata
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{
-      headers:{'X-Master-Key':READ_KEY}
-    });
+  try{
+    const res=await fetch(BLOB_URL);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data=await res.json();
-
-    // JSONBin wraps the stored object under data.record
-    // Our uploader stores { csv: "...", updatedAt: "..." } as the record
-    const record = data.record ?? data; // fallback if no wrapper
-    const csv = record.csv ?? record;   // fallback if record IS the csv string
-
-    if(!csv || typeof csv !== 'string' || csv.trim().length === 0){
-      throw new Error('No CSV data found in bin — please use the uploader to push your Paylocity export first.');
+    const record=await res.json();
+    const csv=record.csv??record;
+    if(!csv||typeof csv!=='string'||csv.trim().length===0){
+      throw new Error('No CSV data found — use the uploader to push your Paylocity export first.');
     }
-
-    const updatedAt = record.updatedAt ?? data.metadata?.createdAt;
+    const updatedAt=record.updatedAt;
     status.style.display='none';
     if(updatedAt){
       const d=new Date(updatedAt);
       document.getElementById('last-updated').textContent=
-        'Last updated: '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        'Updated '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
     }
     initChart(csv);
-  } catch(e){
+  }catch(e){
     status.className='status-error';
-    status.textContent='Could not load org chart data. '+e.message;
-    // Show manual fallback upload button
+    status.textContent='Could not load org chart. '+e.message;
     document.getElementById('fallback-upload').style.display='block';
   }
 }
